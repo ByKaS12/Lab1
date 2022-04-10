@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    @model EndedTask.Models.ApplicationDbContext
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+</head>
+<body>
+    @await Html.PartialAsync("NavBar");
+
+    @{ if (Model != null)
+        {
+            var user = Model.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var client = Model.Clients.FirstOrDefault(u => u.Id == Guid.Parse(user.Id));
+            var order = Model.Orders.FirstOrDefault(u => u.ClientId == client.Id);
+            var List = Model.OrderItems.ToList().Where(u => u.OrderId == order.Id);
+            if (order != null)
+            {
+                if (order.OrderNumber != 0)
+                {
+                    <h2 class="intro__subtitle intro__subtitle--h2">Заказ № @order.OrderNumber.ToString()</h2>
+                }
+                else
+                {<h2 class="intro__subtitle intro__subtitle--h2"></h2> }
+
+                <div class="catalog">
+
+                    @foreach (var item in Model.OrderItems.ToList().Where(u => u.OrderId == order.Id))
+                    {
+                    <div class="product__item">
+                        <div class="img__container">
+                            <img class="product__img" src="@Model.Products.FirstOrDefault(u => u.Id == item.ProductId).image" />
+                        </div>
+                        <div class="product__content">
+                            <div class="product__title">
+                                Цена: @item.ItemPrice
+                            </div>
+                            <div class="product__category">
+                                Количество: @item.ItemsCount
+                            </div>
+                            <div class="product__price">
+                            </div>
+                            <div class="product__btn">
+                                @if (order.OrderNumber == 0)
+                                {<a class="btn btn--product__item" asp-action="DeleteOrderItems" asp-controller="Product" asp-route-id="@item.Id">Удалить</a>}
+                            </div>
+                        </div>
+                    </div>
+                    }
+                    </div>
+                    }
+<div class="intro intro--order">
+    @if (order.OrderNumber == 0)
+    {
+    <a class="btn btn--Order btn--red" type="submit" asp-action="confirm" asp-controller="Account" asp-route-id="@order.Id">Потвердить заказ</a>
+    }
+
+</div>
+
+                    
+                    }
+                    }
+
+            </body>
+</html>
